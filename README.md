@@ -183,7 +183,6 @@ See [docs/project-structure.md](docs/project-structure.md).
 - [Demo Mode](docs/demo-mode.md)
 - [Docker](docs/docker.md)
 - [Project Structure](docs/project-structure.md)
-- [Project Audit](docs/project-audit.md)
 
 ## Limitations
 
