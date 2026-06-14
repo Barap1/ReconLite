@@ -7,9 +7,6 @@ import json
 import os
 from pathlib import Path
 
-from pymongo import MongoClient
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEMO_DATA_FILE = PROJECT_ROOT / "sample_data" / "demo_results.json"
 
@@ -34,6 +31,8 @@ def main() -> None:
     mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
     database_name = os.getenv("DATABASE_NAME", "scannerdb")
     collection_name = os.getenv("COLLECTION_NAME", "sslchecker")
+
+    from pymongo import MongoClient
 
     client = MongoClient(mongo_uri)
     collection = client[database_name][collection_name]
