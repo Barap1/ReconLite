@@ -1,3 +1,10 @@
+"""ReconLite scanner pipeline.
+
+This module runs Masscan for authorized scopes, enriches discovered hosts with
+TLS certificate and HTTP metadata, and posts result batches to the local Flask
+server for MongoDB storage.
+"""
+
 import re
 import ssl
 import os
@@ -13,6 +20,8 @@ import sys
 import signal
 
 class SSLChecker:
+    """Coordinate discovery, enrichment, parsing, and result submission."""
+
     def __init__(
         self,
         ssl_port=443,
@@ -287,16 +296,27 @@ class SSLChecker:
 
     def run_masscan(self):
         """
-        Uses subprocesses to run the masscan command
+        Run Masscan against the authorized scope list.
         """
         try:
             # Check if ips_file is empty
             if os.path.getsize(self.ips_file) == 0:
                 raise ValueError("The IP address list is empty. Please add IP addresses or ranges to ips.txt.")
 
-            # this rate limit is the ideal to get the maximum amount of ip addresses
-            command = f"sudo masscan -p443 --rate {self.masscan_rate} --wait 0 -iL {self.ips_file} -oH {self.mass_scan_results_file}"
-            subprocess.run(command, shell=True, check=True)
+            command = [
+                "sudo",
+                "masscan",
+                "-p443",
+                "--rate",
+                str(self.masscan_rate),
+                "--wait",
+                "0",
+                "-iL",
+                self.ips_file,
+                "-oH",
+                self.mass_scan_results_file,
+            ]
+            subprocess.run(command, check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error while running masscan: {e}")
         except FileNotFoundError:
@@ -322,6 +342,7 @@ class SSLChecker:
         sys.exit(0)  # Exit with a success code
 
     async def main(self, signal_handler=signal_handler):
+        """Run discovery, enrichment, and result submission."""
         signal.signal(signal.SIGTERM,signal_handler)
         signal.signal(signal.SIGINT,signal_handler)
         self.check_and_create_files(self.mass_scan_results_file, self.ips_file)

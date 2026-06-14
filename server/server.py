@@ -1,3 +1,9 @@
+"""ReconLite Flask dashboard and search API.
+
+The server stores scan results in MongoDB, exposes local dashboard controls,
+validates scan inputs, and launches the scanner without shell interpolation.
+"""
+
 import re
 import json
 from bson.regex import Regex
@@ -35,6 +41,7 @@ ALLOW_PUBLIC_SCAN = os.getenv("ALLOW_PUBLIC_SCAN", "false").strip().lower() == "
 
 # Function to update the status file (only status)
 def update_status_file(status, start_time=None):
+    """Persist scanner status for dashboard polling."""
     data = {"status": status}
     if start_time is not None:
         data["start_time"] = start_time
@@ -44,6 +51,7 @@ def update_status_file(status, start_time=None):
 update_status_file("not running")
 
 def check_status_file():
+    """Read scanner status from the local status file."""
     with open(STATUS_FILE, "r") as f:
         data = json.load(f)
     return data["status"]
@@ -96,6 +104,7 @@ def respond_to_any_path(any_path):
 
 @app.route("/insert", methods=["POST"])
 def insert():
+    """Insert scanner result batches into MongoDB."""
     try:
         # get json data from the request object
         results_json = request.get_json()
@@ -118,6 +127,7 @@ def insert():
 
 @app.route("/add_ip", methods=["POST"])
 def add_ip():
+    """Validate and store an approved scan scope."""
     try:
         ip_address = validate_scan_scope(
             request.form.get("ip_address", ""),
@@ -459,6 +469,7 @@ def perform_delete():
 
 @app.route("/scan", methods=["POST"])
 def scan():
+    """Validate scan settings and start the scanner subprocess."""
     global scanner_process, scanner_start_time
 
     if str(check_status_file()) == "running":
@@ -541,6 +552,7 @@ def get_chunks_processed():
     
 @app.route("/scanstop", methods=["POST"])
 def stop_scan():
+    """Stop the scanner process when one is currently running."""
     global scanner_process
 
     try:
