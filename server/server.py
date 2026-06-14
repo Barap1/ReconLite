@@ -1,3 +1,9 @@
+"""ReconLite Flask dashboard and search API.
+
+The server stores scan results in MongoDB, exposes local dashboard controls,
+validates scan inputs, and launches the scanner without shell interpolation.
+"""
+
 import re
 import json
 from bson.regex import Regex
@@ -5,16 +11,37 @@ from pymongo import MongoClient
 from flask import Flask, request, jsonify, Response, render_template
 import subprocess
 import os
+import sys
 import time
 import signal
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from reconlite_utils import (
+    build_scanner_command,
+    parse_ports,
+    parse_positive_int,
+    validate_scan_scope,
+)
+
 app = Flask(__name__)
 STATUS_FILE = "status.json"
+CHUNKS_FILE = "chunks_processed.json"
+IPS_FILE = os.path.join(PROJECT_ROOT, "ips.txt")
 scanner_process = None
 scanner_start_time = None  
 
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "scannerdb")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "sslchecker")
+DEMO_MODE = os.getenv("DEMO_MODE", "false").strip().lower() == "true"
+ALLOW_PUBLIC_SCAN = os.getenv("ALLOW_PUBLIC_SCAN", "false").strip().lower() == "true"
+
 # Function to update the status file (only status)
 def update_status_file(status, start_time=None):
+    """Persist scanner status for dashboard polling."""
     data = {"status": status}
     if start_time is not None:
         data["start_time"] = start_time
@@ -24,22 +51,22 @@ def update_status_file(status, start_time=None):
 update_status_file("not running")
 
 def check_status_file():
+    """Read scanner status from the local status file."""
     with open(STATUS_FILE, "r") as f:
         data = json.load(f)
     return data["status"]
 
 
 
-with open("chunks_processed.json", "w") as f:
+with open(CHUNKS_FILE, "w") as f:
     json.dump({"chunks_processed": 0}, f)
 
 # MongoDB configuration
-mongo_uri = "mongodb://localhost:27017/"
-client = MongoClient(mongo_uri)
+client = MongoClient(MONGO_URI)
 
 try:
-    db = client["scannerdb"]
-    collection = db["sslchecker"]
+    db = client[DATABASE_NAME]
+    collection = db[COLLECTION_NAME]
     print("MongoDB connection successful")
 except Exception as e:
     print(f"Error connecting to MongoDB: {str(e)}")
@@ -52,7 +79,22 @@ def handle_database_error(e):
 
 @app.route("/", methods=["GET"])
 def home():
-  return render_template("index.html")
+  return render_template(
+      "index.html",
+      demo_mode=DEMO_MODE,
+      allow_public_scan=ALLOW_PUBLIC_SCAN,
+  )
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify(
+        {
+            "status": "ok",
+            "demo_mode": DEMO_MODE,
+            "allow_public_scan": ALLOW_PUBLIC_SCAN,
+        }
+    )
 
 
 @app.route("/<path:any_path>", methods=["GET"])
@@ -62,16 +104,17 @@ def respond_to_any_path(any_path):
 
 @app.route("/insert", methods=["POST"])
 def insert():
+    """Insert scanner result batches into MongoDB."""
     try:
         # get json data from the request object
         results_json = request.get_json()
         collection.insert_many(results_json)
 
         # Update the number of chunks processed
-        with open("chunks_processed.json", "r") as f:
+        with open(CHUNKS_FILE, "r") as f:
             data = json.load(f)
         data["chunks_processed"] += 1
-        with open("chunks_processed.json", "w") as f:
+        with open(CHUNKS_FILE, "w") as f:
             json.dump(data, f)
 
         return jsonify({"message": "Inserted"})
@@ -84,15 +127,19 @@ def insert():
 
 @app.route("/add_ip", methods=["POST"])
 def add_ip():
+    """Validate and store an approved scan scope."""
     try:
-        ip_address = request.form["ip_address"]
-        if not ip_address:
-            return jsonify({"error": "IP address is required"}), 400
+        ip_address = validate_scan_scope(
+            request.form.get("ip_address", ""),
+            allow_public_scan=ALLOW_PUBLIC_SCAN,
+        )
 
-        with open("../ips.txt", "a") as f:
+        with open(IPS_FILE, "a") as f:
             f.write(f"{ip_address}\n")
 
-        return jsonify({"message": "IP address added successfully"}), 200
+        return jsonify({"message": "Scan scope added successfully"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -422,27 +469,51 @@ def perform_delete():
 
 @app.route("/scan", methods=["POST"])
 def scan():
-    global scanner_process
+    """Validate scan settings and start the scanner subprocess."""
+    global scanner_process, scanner_start_time
 
     if str(check_status_file()) == "running":
         return jsonify({"error": "Scanner is already running"}), 400
     else:
         try:
-            masscan_rate = request.form["masscan_rate"]
-            timeout = request.form["timeout"]
-            chunkSize = request.form["chunkSize"]
-            ports = request.form["ports"]
+            masscan_rate = parse_positive_int(
+                request.form.get("masscan_rate", ""),
+                "masscan_rate",
+                minimum=1,
+            )
+            timeout = parse_positive_int(
+                request.form.get("timeout", ""),
+                "timeout",
+                minimum=1,
+            )
+            chunkSize = parse_positive_int(
+                request.form.get("chunkSize", ""),
+                "chunkSize",
+                minimum=1,
+            )
+            ports = parse_ports(request.form.get("ports", ""))
 
             scanner_path = os.path.join(os.path.dirname(__file__), '..', 'scanner.py')
-            command = f"python3 {scanner_path} {masscan_rate} {timeout} {chunkSize} {ports}"
+            command = build_scanner_command(scanner_path, masscan_rate, timeout, chunkSize, ports)
             print(f"Running command: {command}")
 
             scanner_start_time = time.time()
-            scanner_process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, preexec_fn=os.setsid)
+            popen_kwargs = {}
+            if os.name != "nt":
+                popen_kwargs["preexec_fn"] = os.setsid
+            scanner_process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                **popen_kwargs,
+            )
             # Update status to "running" and include start time
             update_status_file("running", scanner_start_time)
 
             return jsonify({"message": "Scanner started successfully"}), 200
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
@@ -471,7 +542,7 @@ def get_chunks_processed():
         with open("status.json", "r") as g:
             stat = json.load(g)
             if stat["status"] == "running":
-                with open("chunks_processed.json", "r") as f:
+                with open(CHUNKS_FILE, "r") as f:
                     data = json.load(f)
                 return jsonify(data), 200
             else:
@@ -481,18 +552,27 @@ def get_chunks_processed():
     
 @app.route("/scanstop", methods=["POST"])
 def stop_scan():
+    """Stop the scanner process when one is currently running."""
     global scanner_process
 
     try:
         if str(check_status_file()) == "running":
             update_status_file("stopped")
-            # Send SIGTERM to the process group
-   
-            if scanner_process:
-                os.kill(int(scanner_process.pid), signal.SIGKILL)
-            time.sleep(1)
-            os.killpg(os.getpgid(scanner_process.pid), signal.SIGKILL)
-            scanner_process.wait()
+
+            if scanner_process is not None and scanner_process.poll() is None:
+                if os.name != "nt":
+                    os.killpg(os.getpgid(scanner_process.pid), signal.SIGTERM)
+                else:
+                    scanner_process.terminate()
+
+                try:
+                    scanner_process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    if os.name != "nt":
+                        os.killpg(os.getpgid(scanner_process.pid), signal.SIGKILL)
+                    else:
+                        scanner_process.kill()
+                    scanner_process.wait()
 
             scanner_process = None
             

@@ -1,0 +1,374 @@
+[
+  {
+    "ip": "192.168.1.10",
+    "ports": [{"port": 80}, {"port": 443}],
+    "http_responseForIP": [
+      {
+        "title": "Example Nginx Server",
+        "request": "http://192.168.1.10:80",
+        "redirected_url": "",
+        "ip": "192.168.1.10",
+        "port": "80",
+        "domain": "demo.local",
+        "response_text": "Welcome to the ReconLite demo nginx landing page for an internal lab service.",
+        "response_headers": {
+          "Server": "nginx/1.24 demo",
+          "Content-Security-Policy": "default-src 'self'",
+          "X-Frame-Options": "DENY"
+        }
+      }
+    ],
+    "https_responseForIP": {
+      "title": "Example Nginx Server",
+      "request": "https://192.168.1.10:443",
+      "redirected_url": "",
+      "ip": "192.168.1.10",
+      "port": "443",
+      "domain": "demo.local",
+      "response_text": "TLS-enabled demo web service with nginx headers for portfolio search examples.",
+      "response_headers": {
+        "Server": "nginx/1.24 demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    },
+    "http_responseForDomainName": {
+      "title": "Example Nginx Server",
+      "request": "http://demo.local:80",
+      "redirected_url": "",
+      "ip": "192.168.1.10",
+      "port": "80",
+      "domain": "demo.local",
+      "response_text": "Demo local domain served by nginx in an authorized lab environment.",
+      "response_headers": {
+        "Server": "nginx/1.24 demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    },
+    "https_responseForDomainName": {
+      "title": "Example Nginx Server",
+      "request": "https://demo.local:443",
+      "redirected_url": "",
+      "ip": "192.168.1.10",
+      "port": "443",
+      "domain": "demo.local",
+      "response_text": "Secure demo.local response for safe ReconLite search testing.",
+      "response_headers": {
+        "Server": "nginx/1.24 demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    }
+  },
+  {
+    "ip": "192.168.1.20",
+    "ports": [{"port": 80}, {"port": 443}],
+    "http_responseForIP": [
+      {
+        "title": "Intranet Portal",
+        "request": "http://192.168.1.20:80",
+        "redirected_url": "http://intranet.local/home",
+        "ip": "192.168.1.20",
+        "port": "80",
+        "domain": "intranet.local",
+        "response_text": "Internal employee portal with demo navigation, notices, and documentation links.",
+        "response_headers": {
+          "Server": "gunicorn demo",
+          "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      }
+    ],
+    "https_responseForIP": {
+      "title": "Intranet Portal",
+      "request": "https://192.168.1.20:443",
+      "redirected_url": "",
+      "ip": "192.168.1.20",
+      "port": "443",
+      "domain": "intranet.local",
+      "response_text": "HTTPS intranet.local demo portal response for header and domain search examples.",
+      "response_headers": {
+        "Server": "gunicorn demo",
+        "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    },
+    "http_responseForDomainName": {
+      "title": "Intranet Portal",
+      "request": "http://intranet.local:80",
+      "redirected_url": "",
+      "ip": "192.168.1.20",
+      "port": "80",
+      "domain": "intranet.local",
+      "response_text": "Searchable intranet.local demo content for safe dashboard reviews.",
+      "response_headers": {
+        "Server": "gunicorn demo",
+        "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    },
+    "https_responseForDomainName": {
+      "title": "Intranet Portal",
+      "request": "https://intranet.local:443",
+      "redirected_url": "",
+      "ip": "192.168.1.20",
+      "port": "443",
+      "domain": "intranet.local",
+      "response_text": "Secure intranet demo response with policy headers.",
+      "response_headers": {
+        "Server": "gunicorn demo",
+        "Content-Security-Policy": "default-src 'self'; frame-ancestors 'none'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    }
+  },
+  {
+    "ip": "10.0.0.15",
+    "ports": [{"port": 80}, {"port": 443}],
+    "http_responseForIP": [
+      {
+        "title": "Staging API Console",
+        "request": "http://10.0.0.15:80",
+        "redirected_url": "",
+        "ip": "10.0.0.15",
+        "port": "80",
+        "domain": "staging.internal",
+        "response_text": "Staging internal API console with demo service metadata and JSON examples.",
+        "response_headers": {
+          "Server": "uvicorn demo",
+          "Content-Security-Policy": "default-src 'self'",
+          "X-Frame-Options": "DENY"
+        }
+      }
+    ],
+    "https_responseForIP": {
+      "title": "Staging API Console",
+      "request": "https://10.0.0.15:443",
+      "redirected_url": "",
+      "ip": "10.0.0.15",
+      "port": "443",
+      "domain": "staging.internal",
+      "response_text": "TLS staging.internal demo API console for safe result exploration.",
+      "response_headers": {
+        "Server": "uvicorn demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    },
+    "http_responseForDomainName": {
+      "title": "Staging API Console",
+      "request": "http://staging.internal:80",
+      "redirected_url": "",
+      "ip": "10.0.0.15",
+      "port": "80",
+      "domain": "staging.internal",
+      "response_text": "staging.internal API console demo response.",
+      "response_headers": {
+        "Server": "uvicorn demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    },
+    "https_responseForDomainName": {
+      "title": "Staging API Console",
+      "request": "https://staging.internal:443",
+      "redirected_url": "",
+      "ip": "10.0.0.15",
+      "port": "443",
+      "domain": "staging.internal",
+      "response_text": "Secure staging API response with explicit demo headers.",
+      "response_headers": {
+        "Server": "uvicorn demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    }
+  },
+  {
+    "ip": "10.0.0.25",
+    "ports": [{"port": 80}],
+    "http_responseForIP": [
+      {
+        "title": "Lab Wiki",
+        "request": "http://10.0.0.25:80",
+        "redirected_url": "",
+        "ip": "10.0.0.25",
+        "port": "80",
+        "domain": "wiki.internal",
+        "response_text": "Internal lab wiki demo page documenting approved test systems and owners.",
+        "response_headers": {
+          "Server": "apache demo",
+          "Content-Security-Policy": "default-src 'self'",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      }
+    ],
+    "https_responseForIP": {
+      "title": "Lab Wiki HTTPS",
+      "request": "https://10.0.0.25:443",
+      "redirected_url": "",
+      "ip": "10.0.0.25",
+      "port": "443",
+      "domain": "wiki.internal",
+      "response_text": "Demo TLS endpoint for lab wiki.",
+      "response_headers": {
+        "Server": "apache demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    },
+    "http_responseForDomainName": {
+      "title": "Lab Wiki",
+      "request": "http://wiki.internal:80",
+      "redirected_url": "",
+      "ip": "10.0.0.25",
+      "port": "80",
+      "domain": "wiki.internal",
+      "response_text": "Authorized lab wiki content for ReconLite demo search.",
+      "response_headers": {
+        "Server": "apache demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    },
+    "https_responseForDomainName": {
+      "title": "Lab Wiki HTTPS",
+      "request": "https://wiki.internal:443",
+      "redirected_url": "",
+      "ip": "10.0.0.25",
+      "port": "443",
+      "domain": "wiki.internal",
+      "response_text": "HTTPS lab wiki demo result.",
+      "response_headers": {
+        "Server": "apache demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    }
+  },
+  {
+    "ip": "172.16.5.50",
+    "ports": [{"port": 443}],
+    "http_responseForIP": [
+      {
+        "title": "Device Admin Demo",
+        "request": "http://172.16.5.50:80",
+        "redirected_url": "",
+        "ip": "172.16.5.50",
+        "port": "80",
+        "domain": "device.lab",
+        "response_text": "Demo device admin panel placeholder for local lab inventory searches.",
+        "response_headers": {
+          "Server": "embedded-httpd demo",
+          "Content-Security-Policy": "default-src 'self'",
+          "X-Frame-Options": "DENY"
+        }
+      }
+    ],
+    "https_responseForIP": {
+      "title": "Device Admin Demo",
+      "request": "https://172.16.5.50:443",
+      "redirected_url": "",
+      "ip": "172.16.5.50",
+      "port": "443",
+      "domain": "device.lab",
+      "response_text": "Private lab device management demo response.",
+      "response_headers": {
+        "Server": "embedded-httpd demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    },
+    "http_responseForDomainName": {
+      "title": "Device Admin Demo",
+      "request": "http://device.lab:80",
+      "redirected_url": "",
+      "ip": "172.16.5.50",
+      "port": "80",
+      "domain": "device.lab",
+      "response_text": "device.lab demo result with embedded server header.",
+      "response_headers": {
+        "Server": "embedded-httpd demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    },
+    "https_responseForDomainName": {
+      "title": "Device Admin Demo",
+      "request": "https://device.lab:443",
+      "redirected_url": "",
+      "ip": "172.16.5.50",
+      "port": "443",
+      "domain": "device.lab",
+      "response_text": "HTTPS demo result for a private lab device.",
+      "response_headers": {
+        "Server": "embedded-httpd demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "DENY"
+      }
+    }
+  },
+  {
+    "ip": "127.0.0.1",
+    "ports": [{"port": 80}, {"port": 443}],
+    "http_responseForIP": [
+      {
+        "title": "Local Flask Demo",
+        "request": "http://127.0.0.1:80",
+        "redirected_url": "",
+        "ip": "127.0.0.1",
+        "port": "80",
+        "domain": "localhost",
+        "response_text": "Localhost demo service for verifying ReconLite searches without network scanning.",
+        "response_headers": {
+          "Server": "werkzeug demo",
+          "Content-Security-Policy": "default-src 'self'",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      }
+    ],
+    "https_responseForIP": {
+      "title": "Local Flask Demo",
+      "request": "https://127.0.0.1:443",
+      "redirected_url": "",
+      "ip": "127.0.0.1",
+      "port": "443",
+      "domain": "localhost",
+      "response_text": "Local TLS demo result for localhost.",
+      "response_headers": {
+        "Server": "werkzeug demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    },
+    "http_responseForDomainName": {
+      "title": "Local Flask Demo",
+      "request": "http://localhost:80",
+      "redirected_url": "",
+      "ip": "127.0.0.1",
+      "port": "80",
+      "domain": "localhost",
+      "response_text": "localhost searchable demo data.",
+      "response_headers": {
+        "Server": "werkzeug demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    },
+    "https_responseForDomainName": {
+      "title": "Local Flask Demo",
+      "request": "https://localhost:443",
+      "redirected_url": "",
+      "ip": "127.0.0.1",
+      "port": "443",
+      "domain": "localhost",
+      "response_text": "Secure localhost demo record.",
+      "response_headers": {
+        "Server": "werkzeug demo",
+        "Content-Security-Policy": "default-src 'self'",
+        "X-Frame-Options": "SAMEORIGIN"
+      }
+    }
+  }
+]
