@@ -187,23 +187,17 @@ See [docs/project-structure.md](docs/project-structure.md).
 
 ## Limitations
 
-- ReconLite is not a replacement for Shodan.
-- ReconLite is not a vulnerability scanner by itself.
 - Masscan requires care, permissions, and appropriate rate limits.
 - Docker demo mode does not run real Masscan by default.
-- The search schema is prototype-level and optimized for a portfolio/demo flow.
 - The dashboard does not include a full authentication or authorization system.
 
 ## Future Improvements
 
 - Richer service fingerprinting.
 - Authentication for the dashboard.
-- Role-based access to destructive actions.
-- Import Nmap or Masscan result files.
 - CSV and JSON export.
 - Better scan job queue and history.
 - Improved frontend results view.
-- Authorization/scope management for approved test environments.
 
 ## License
 
