@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Network Search Engine</title>
+  <title>ReconLite Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <style>
     body {
@@ -79,7 +79,7 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">Shodan-Style Network Search Engine</a>
+      <a class="navbar-brand" href="/">ReconLite</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -88,9 +88,24 @@
 
   <div class="container">
     <div class="text-center mb-4">
-      <h1>Shodan-Style Network Search Engine</h1>
-      <p>Add the IP subnets that you would like to scan and then run the scanner.</p>
-      <p>The scanner will then gather information and add it to a MongoDB database. Use this site to search it!</p>
+      <h1>ReconLite: Local Recon Dashboard</h1>
+      <p class="lead mb-1">Search authorized local scan results stored in MongoDB.</p>
+      <p class="text-muted">Demo data can be loaded without running Masscan or scanning any network.</p>
+      <div class="alert alert-warning text-start" role="alert">
+        <strong>Safety notice:</strong> Only scan networks you own or have explicit permission to test.
+      </div>
+      <div class="d-flex justify-content-center gap-2 flex-wrap">
+        {% if demo_mode %}
+          <span class="badge bg-success">Demo mode enabled</span>
+        {% else %}
+          <span class="badge bg-secondary">Demo mode disabled</span>
+        {% endif %}
+        {% if allow_public_scan %}
+          <span class="badge bg-danger">Public scopes allowed by environment</span>
+        {% else %}
+          <span class="badge bg-primary">Private/local scopes only</span>
+        {% endif %}
+      </div>
     </div>
 
     <div class="row">
@@ -98,18 +113,23 @@
         <div class="card mb-4">
           <div class="card-body">
             <h2 class="card-title">Run Scanner</h2>
+            <p class="text-muted">Use conservative settings for approved lab scopes. Demo mode does not require running the scanner.</p>
             <form id="scanForm" action="/scan" method="POST">
-              <div class="input-group mb-3">
+              <div class="mb-3">
                 <input type="number" class="form-control" name="masscan_rate" placeholder="Masscan Rate (Default: 10000)" required>
+                <div class="form-text">Packets per second for Masscan. Start low in lab environments.</div>
               </div>
-              <div class="input-group mb-3">
+              <div class="mb-3">
                 <input type="number" class="form-control" name="timeout" placeholder="Timeout (Default: 3)" required>
+                <div class="form-text">HTTP and TLS request timeout in seconds.</div>
               </div>
-              <div class="input-group mb-3">
+              <div class="mb-3">
                 <input type="number" class="form-control" name="chunkSize" placeholder="Chunk Size (Default: 50)" required>
+                <div class="form-text">Number of discovered hosts processed per async batch.</div>
               </div>
-              <div class="input-group mb-3">
+              <div class="mb-3">
                 <input type="text" class="form-control" name="ports" placeholder="Ports (comma-separated) (Default: 80)" required>
+                <div class="form-text">Comma-separated HTTP probe ports, for example <code>80,443</code>.</div>
               </div>
               <div class="status-container">
                 <div class="button-container">
@@ -129,10 +149,14 @@
         <div class="card mb-4">
           <div class="card-body">
             <h2 class="card-title">Add IP Address Subnet</h2>
+            <p class="text-muted">Add only approved local/private scopes unless public scanning is explicitly enabled and authorized.</p>
             <form id="addIpForm" action="/add_ip" method="POST">
-              <div class="input-group mb-3">
-                <input type="text" class="form-control" name="ip_address" placeholder="Enter IP Subnet" required>
-                <button type="submit" class="btn btn-primary">Add IP</button>
+              <div class="mb-3">
+                <div class="input-group">
+                  <input type="text" class="form-control" name="ip_address" placeholder="Enter local/private scope, e.g. 192.168.1.0/24" required>
+                  <button type="submit" class="btn btn-primary">Add Scope</button>
+                </div>
+                <div class="form-text">Accepted by default: localhost, loopback, and private CIDR ranges.</div>
               </div>
             </form>
             <div id="addIpStatus" class="mt-3"></div>
@@ -155,6 +179,7 @@
         <div class="card mb-4">
           <div class="card-body search-box">
             <h2 class="card-title">Search</h2>
+            <p class="text-muted mb-2">Try demo searches: <code>nginx</code>, <code>demo.local</code>, <code>443</code>, <code>Content-Security-Policy</code>.</p>
             <form id="searchForm" action="" method="GET">
               <div class="input-group mb-3">
                 <select id="searchType" class="form-select" required>
